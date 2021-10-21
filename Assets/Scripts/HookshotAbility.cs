@@ -42,15 +42,22 @@ public class HookshotAbility : CharacterAbility
         _mousePosition = Camera.main.ScreenToWorldPoint(mousePos);
 
         var shootButtonState = _inputManager.ShootButton.State;
-
-        if (shootButtonState.CurrentState == MoreMountains.Tools.MMInput.ButtonStates.ButtonDown)
+        if (SpawnedHook == null)
         {
-            Aim();
+            if (shootButtonState.CurrentState == MoreMountains.Tools.MMInput.ButtonStates.ButtonDown)
+            {
+                Aim();
+            }
+            else if (shootButtonState.CurrentState == MoreMountains.Tools.MMInput.ButtonStates.ButtonUp)
+            {
+                Shoot();
+            }
         }
-        else if (shootButtonState.CurrentState == MoreMountains.Tools.MMInput.ButtonStates.ButtonUp)
+        if (SpawnedHook.GetComponent<BoxCollider2D>().IsTouchingLayers(ValidHitLayer))
         {
-            Shoot();
-        }
+            StopCoroutine(MoveToTarget());
+            StartCoroutine(MoveToTarget());
+        } 
     }
 
 
@@ -72,40 +79,25 @@ public class HookshotAbility : CharacterAbility
     private void Shoot()
     {
         SpawnHook();
-
-        //_controller.GravityActive(false);
-        StopCoroutine(MoveToTarget());
-        StartCoroutine(MoveToTarget());
-        //_controller.GravityActive(true);
     }
 
     private void SpawnHook()
     {
-        if (SpawnedHook == null)
-        {
-            Vector3 hookRotation = new Vector3(0,0,Vector2.Angle(Vector2.right, playerToMouse));
-            //print(hookRotation);
-            SpawnedHook = Instantiate(Hook, transform.position, Quaternion.identity);
-            projectile = SpawnedHook.GetComponent<Projectile>();
-            hookRotation = _mousePosition.y > transform.position.y ? hookRotation : -hookRotation;
-            SpawnedHook.transform.Rotate(hookRotation);
-            projectile.Direction = playerToMouse;
-            SpawnedHook.SetActive(true);
-        }
-
-
+        Vector3 hookRotation = new Vector3(0,0,Vector2.Angle(Vector2.right, playerToMouse));
+        //print(hookRotation);
+        SpawnedHook = Instantiate(Hook, transform.position, Quaternion.identity);
+        projectile = SpawnedHook.GetComponent<Projectile>();
+        hookRotation = _mousePosition.y > transform.position.y ? hookRotation : -hookRotation;
+        SpawnedHook.transform.Rotate(hookRotation);
+        projectile.Direction = playerToMouse;
+        SpawnedHook.SetActive(true);
     }
 
     IEnumerator MoveToTarget()
     {
         float elapsedTime = 0f;
         Vector2 targetPosition = _targetHitPoint - playerToMouse * Offset;
-        while (elapsedTime < Speed/*Vector2.Distance(SpawnedHook.transform.position, targetPosition) > 1*/)
-        {
-            elapsedTime += Speed * Time.deltaTime;
-        }
-        projectile.Speed = 0;
-        elapsedTime = 0f;
+        projectile.Speed = 0f;
         while (elapsedTime < Speed)
         {
             transform.position = Vector2.Lerp(transform.position , targetPosition, elapsedTime/Speed);
@@ -116,5 +108,6 @@ public class HookshotAbility : CharacterAbility
             elapsedTime += Speed * Time.deltaTime;
             yield return null;  
         }
+        Destroy(SpawnedHook);
     }
 }
