@@ -12,7 +12,6 @@ public class HookshotAbility : CharacterAbility
     private Projectile projectile;
 
     [SerializeField] private Vector2 _facingDirection;
-
     [SerializeField] private Vector2 _targetHitPoint;
     [SerializeField] private Vector2 playerToMouse;
     [SerializeField] private Vector3 _mousePosition;
@@ -53,11 +52,18 @@ public class HookshotAbility : CharacterAbility
                 Shoot();
             }
         }
-        if (SpawnedHook.GetComponent<BoxCollider2D>().IsTouchingLayers(ValidHitLayer))
+        else
         {
-            StopCoroutine(MoveToTarget());
-            StartCoroutine(MoveToTarget());
-        } 
+            if (SpawnedHook.GetComponent<BoxCollider2D>().IsTouchingLayers(ValidHitLayer))
+            {
+                StopCoroutine(MoveToTarget());
+                StartCoroutine(MoveToTarget());
+            }
+            if (SpawnedHook.transform.position.y > 25)
+            {
+                Destroy(SpawnedHook);
+            }
+        }
     }
 
 

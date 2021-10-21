@@ -146,7 +146,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BoundsBasedOn: 1
-  LifeTime: 0
+  LifeTime: 5
   FaceDirection: 0
   Speed: 200
   Acceleration: 0
