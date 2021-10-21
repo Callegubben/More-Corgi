@@ -8,6 +8,8 @@ using UnityEngine;
 public class HookshotAbility : CharacterAbility
 {
     public GameObject Hook;
+    private GameObject SpawnedHook;
+    private Projectile projectile;
 
     [SerializeField] private Vector2 _facingDirection;
 
@@ -57,6 +59,7 @@ public class HookshotAbility : CharacterAbility
         _facingDirection = _character.IsFacingRight ? Vector2.right : Vector2.left;
         playerToMouse = (_mousePosition - transform.position).normalized;
 
+
         RaycastHit2D raycastHit = MMDebug.RayCast(transform.position, playerToMouse, Distance, ValidHitLayer, Color.red, true);
 
         if (raycastHit)
@@ -65,18 +68,44 @@ public class HookshotAbility : CharacterAbility
             //print($"Target accuired:{raycastHit.collider.name}  {raycastHit.point}");
         }
     }
+
     private void Shoot()
     {
+        SpawnHook();
+
         //_controller.GravityActive(false);
         StopCoroutine(MoveToTarget());
         StartCoroutine(MoveToTarget());
         //_controller.GravityActive(true);
     }
 
+    private void SpawnHook()
+    {
+        if (SpawnedHook == null)
+        {
+            Vector3 hookRotation = new Vector3(0,0,Vector2.Angle(Vector2.right, playerToMouse));
+            //print(hookRotation);
+            SpawnedHook = Instantiate(Hook, transform.position, Quaternion.identity);
+            projectile = SpawnedHook.GetComponent<Projectile>();
+            hookRotation = _mousePosition.y > transform.position.y ? hookRotation : -hookRotation;
+            SpawnedHook.transform.Rotate(hookRotation);
+            projectile.Direction = playerToMouse;
+            SpawnedHook.SetActive(true);
+        }
+
+
+    }
+
     IEnumerator MoveToTarget()
     {
         float elapsedTime = 0f;
         Vector2 targetPosition = _targetHitPoint - playerToMouse * Offset;
+        while (elapsedTime < Speed/*Vector2.Distance(SpawnedHook.transform.position, targetPosition) > 1*/)
+        {
+            elapsedTime += Speed * Time.deltaTime;
+        }
+        projectile.Speed = 0;
+        elapsedTime = 0f;
         while (elapsedTime < Speed)
         {
             transform.position = Vector2.Lerp(transform.position , targetPosition, elapsedTime/Speed);

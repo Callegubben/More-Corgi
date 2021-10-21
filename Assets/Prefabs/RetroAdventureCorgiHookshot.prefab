@@ -902,7 +902,14 @@ MonoBehaviour:
   AbilityPermitted: 1
   BlockingMovementStates: 
   BlockingConditionStates: 
+  Hook: {fileID: 5264172514811764588, guid: a43dbc38a04224c4eb1a6f01f36ad7ce, type: 3}
   _facingDirection: {x: 0, y: 0}
+  _targetHitPoint: {x: 0, y: 0}
+  playerToMouse: {x: 0, y: 0}
+  _mousePosition: {x: 0, y: 0, z: 0}
+  Speed: 10
+  Offset: 0.85
+  Distance: 100
   ValidHitLayer:
     serializedVersion: 2
     m_Bits: 403998976
