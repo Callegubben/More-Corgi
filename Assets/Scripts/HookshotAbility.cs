@@ -8,13 +8,17 @@ using UnityEngine;
 public class HookshotAbility : CharacterAbility
 {
     public GameObject Hook;
+
     private GameObject SpawnedHook;
-    private Projectile projectile;
+    private Projectile _projectile;
+    private LineRenderer _lineRendererHook;
 
     [SerializeField] private Vector2 _facingDirection;
     [SerializeField] private Vector2 _targetHitPoint;
     [SerializeField] private Vector2 playerToMouse;
     [SerializeField] private Vector3 _mousePosition;
+    private LineRenderer _lineRendererPlayer;
+    private bool ReadyToShoot;
 
     public float Speed = 10f;
     public float Offset = 0.85f;
@@ -25,6 +29,7 @@ public class HookshotAbility : CharacterAbility
     {
         _facingDirection = Vector2.zero;
         _targetHitPoint = Vector2.zero;
+        _lineRendererPlayer = gameObject.GetComponent<LineRenderer>();
         base.Initialization();
     }
 
@@ -43,32 +48,23 @@ public class HookshotAbility : CharacterAbility
         var shootButtonState = _inputManager.ShootButton.State;
         if (SpawnedHook == null)
         {
-            if (shootButtonState.CurrentState == MoreMountains.Tools.MMInput.ButtonStates.ButtonDown)
+            if (shootButtonState.CurrentState == MoreMountains.Tools.MMInput.ButtonStates.ButtonPressed)
             {
                 Aim();
             }
-            else if (shootButtonState.CurrentState == MoreMountains.Tools.MMInput.ButtonStates.ButtonUp)
+            else if (shootButtonState.CurrentState == MoreMountains.Tools.MMInput.ButtonStates.ButtonUp && ReadyToShoot)
             {
                 Shoot();
             }
+            
         }
         else
         {
-            Vector3 linePointOnHookOffset = new Vector3(playerToMouse.x, playerToMouse.y , 0);
-            Vector3 linePointOnHook = SpawnedHook.transform.position - (linePointOnHookOffset * 0.3f);
-
-            SpawnedHook.GetComponent<LineRenderer>().SetPosition(0, linePointOnHook);
-            SpawnedHook.GetComponent<LineRenderer>().SetPosition(1, gameObject.transform.position);
+            DrawRope();
             if (SpawnedHook.GetComponent<BoxCollider2D>().IsTouchingLayers(ValidHitLayer))
             {
                 StopCoroutine(MoveToTarget());
                 StartCoroutine(MoveToTarget());
-            }
-            if (SpawnedHook.transform.position.y > 25)
-            {
-                Destroy(SpawnedHook);
-                _condition.ChangeState(CharacterStates.CharacterConditions.Normal);
-                _controller.GravityActive(true);
             }
         }
     }
@@ -79,18 +75,28 @@ public class HookshotAbility : CharacterAbility
         _facingDirection = _character.IsFacingRight ? Vector2.right : Vector2.left;
         playerToMouse = (_mousePosition - transform.position).normalized;
 
-
+        
         RaycastHit2D raycastHit = MMDebug.RayCast(transform.position, playerToMouse, Distance, ValidHitLayer, Color.red, true);
 
         if (raycastHit)
         {
+            ReadyToShoot = true;
             _targetHitPoint = raycastHit.point;
+            _lineRendererPlayer.SetPosition(0, gameObject.transform.position);
+            _lineRendererPlayer.SetPosition(1, _targetHitPoint);
             //print($"Target accuired:{raycastHit.collider.name}  {raycastHit.point}");
+        }
+        else
+        {
+            _lineRendererPlayer.SetPosition(0, gameObject.transform.position);
+            _lineRendererPlayer.SetPosition(1, gameObject.transform.position);
+            ReadyToShoot = false;
         }
     }
 
     private void Shoot()
     {
+        _lineRendererPlayer.SetPosition(1, gameObject.transform.position);
         _controller.GravityActive(false);
         SpawnHook();
         _condition.ChangeState(CharacterStates.CharacterConditions.BeingAHooker);
@@ -101,18 +107,27 @@ public class HookshotAbility : CharacterAbility
         Vector3 hookRotation = new Vector3(0,0,Vector2.Angle(Vector2.right, playerToMouse));
         //print(hookRotation);
         SpawnedHook = Instantiate(Hook, transform.position, Quaternion.identity);
-        projectile = SpawnedHook.GetComponent<Projectile>();
+        _projectile = SpawnedHook.GetComponent<Projectile>();
+        _lineRendererHook = SpawnedHook.GetComponent<LineRenderer>();
         hookRotation = _mousePosition.y > transform.position.y ? hookRotation : -hookRotation;
         SpawnedHook.transform.Rotate(hookRotation);
-        projectile.Direction = playerToMouse;
+        _projectile.Direction = playerToMouse;
         SpawnedHook.SetActive(true);
+    }
+
+    private void DrawRope()
+    {
+        Vector3 linePointOnHookOffset = new Vector3(playerToMouse.x, playerToMouse.y, 0);
+        Vector3 linePointOnHook = SpawnedHook.transform.position - (linePointOnHookOffset * 0.3f);
+        _lineRendererHook.SetPosition(0, linePointOnHook);
+        _lineRendererHook.SetPosition(1, gameObject.transform.position);
     }
 
     IEnumerator MoveToTarget()
     {
         float elapsedTime = 0f;
         Vector2 targetPosition = _targetHitPoint - playerToMouse * Offset;
-        projectile.Speed = 0f;
+        _projectile.Speed = 0f;
         while (elapsedTime < Speed)
         {
             transform.position = Vector2.Lerp(transform.position , targetPosition, elapsedTime/Speed);
