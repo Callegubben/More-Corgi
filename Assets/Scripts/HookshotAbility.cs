@@ -54,6 +54,11 @@ public class HookshotAbility : CharacterAbility
         }
         else
         {
+            Vector3 linePointOnHookOffset = new Vector3(playerToMouse.x, playerToMouse.y , 0);
+            Vector3 linePointOnHook = SpawnedHook.transform.position - linePointOnHookOffset;
+
+            SpawnedHook.GetComponent<LineRenderer>().SetPosition(0, linePointOnHook);
+            SpawnedHook.GetComponent<LineRenderer>().SetPosition(1, gameObject.transform.position);
             if (SpawnedHook.GetComponent<BoxCollider2D>().IsTouchingLayers(ValidHitLayer))
             {
                 StopCoroutine(MoveToTarget());
@@ -62,6 +67,8 @@ public class HookshotAbility : CharacterAbility
             if (SpawnedHook.transform.position.y > 25)
             {
                 Destroy(SpawnedHook);
+                _condition.ChangeState(CharacterStates.CharacterConditions.Normal);
+                _controller.GravityActive(true);
             }
         }
     }
@@ -84,7 +91,9 @@ public class HookshotAbility : CharacterAbility
 
     private void Shoot()
     {
+        _controller.GravityActive(false);
         SpawnHook();
+        _condition.ChangeState(CharacterStates.CharacterConditions.BeingAHooker);
     }
 
     private void SpawnHook()
@@ -115,5 +124,7 @@ public class HookshotAbility : CharacterAbility
             yield return null;  
         }
         Destroy(SpawnedHook);
+        _condition.ChangeState(CharacterStates.CharacterConditions.Normal);
+        _controller.GravityActive(true);
     }
 }

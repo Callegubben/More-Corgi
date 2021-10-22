@@ -414,7 +414,7 @@ MonoBehaviour:
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
   BlockingMovementStates: 
-  BlockingConditionStates: 
+  BlockingConditionStates: 06000000
   WalkSpeed: 6
   MovementSpeedMultiplier: 1
   PushSpeedMultiplier: 1
@@ -445,7 +445,7 @@ MonoBehaviour:
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
   BlockingMovementStates: 
-  BlockingConditionStates: 
+  BlockingConditionStates: 06000000
   CrawlAuthorized: 1
   CrawlSpeed: 4
   ResizeColliderWhenCrouched: 0
@@ -470,7 +470,7 @@ MonoBehaviour:
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
   BlockingMovementStates: 
-  BlockingConditionStates: 
+  BlockingConditionStates: 06000000
   DashDistance: 3
   DashForce: 40
   ResetForcesOnExit: 0
@@ -505,7 +505,7 @@ MonoBehaviour:
   AbilityStopFeedbacks: {fileID: 1388537840173497754}
   AbilityPermitted: 1
   BlockingMovementStates: 
-  BlockingConditionStates: 
+  BlockingConditionStates: 06000000
   ShakeParameters: {x: 1.5, y: 0.5, z: 1}
   DiveAcceleration: 2
 --- !u!114 &114067210621431476
@@ -524,7 +524,7 @@ MonoBehaviour:
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
   BlockingMovementStates: 
-  BlockingConditionStates: 
+  BlockingConditionStates: 06000000
   NumberOfJumps: 2
   JumpHeight: 4
   JumpRestrictions: 1
@@ -555,7 +555,7 @@ MonoBehaviour:
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
   BlockingMovementStates: 
-  BlockingConditionStates: 
+  BlockingConditionStates: 06000000
   RunSpeed: 16
   ReadInput: 1
   AutoRun: 0
@@ -576,7 +576,7 @@ MonoBehaviour:
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
   BlockingMovementStates: 
-  BlockingConditionStates: 
+  BlockingConditionStates: 06000000
   MovingPlatformsJumpCollisionOffDuration: 0.05
   ParticleEmitter: {fileID: 0}
   JetpackForce: 2.5
