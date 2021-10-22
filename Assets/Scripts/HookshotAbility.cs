@@ -55,7 +55,7 @@ public class HookshotAbility : CharacterAbility
         else
         {
             Vector3 linePointOnHookOffset = new Vector3(playerToMouse.x, playerToMouse.y , 0);
-            Vector3 linePointOnHook = SpawnedHook.transform.position - linePointOnHookOffset;
+            Vector3 linePointOnHook = SpawnedHook.transform.position - (linePointOnHookOffset * 0.3f);
 
             SpawnedHook.GetComponent<LineRenderer>().SetPosition(0, linePointOnHook);
             SpawnedHook.GetComponent<LineRenderer>().SetPosition(1, gameObject.transform.position);
