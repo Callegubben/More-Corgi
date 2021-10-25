@@ -18,7 +18,7 @@ public class HookshotAbility : CharacterAbility
     [SerializeField] private Vector2 playerToMouse;
     [SerializeField] private Vector3 _mousePosition;
     private LineRenderer _lineRendererPlayer;
-    private bool ReadyToShoot;
+    [SerializeField] private bool ReadyToShoot;
 
     public float Speed = 10f;
     public float Offset = 0.85f;
@@ -61,7 +61,7 @@ public class HookshotAbility : CharacterAbility
         else
         {
             DrawRope();
-            if (SpawnedHook.GetComponent<BoxCollider2D>().IsTouchingLayers(ValidHitLayer))
+            if (SpawnedHook.GetComponent<PolygonCollider2D>().IsTouchingLayers(ValidHitLayer))
             {
                 StopCoroutine(MoveToTarget());
                 StartCoroutine(MoveToTarget());
@@ -72,9 +72,9 @@ public class HookshotAbility : CharacterAbility
 
     private void Aim()
     {
+        _lineRendererPlayer.enabled = true;
         _facingDirection = _character.IsFacingRight ? Vector2.right : Vector2.left;
         playerToMouse = (_mousePosition - transform.position).normalized;
-
         
         RaycastHit2D raycastHit = MMDebug.RayCast(transform.position, playerToMouse, Distance, ValidHitLayer, Color.red, true);
 
@@ -96,8 +96,11 @@ public class HookshotAbility : CharacterAbility
 
     private void Shoot()
     {
-        _lineRendererPlayer.SetPosition(1, gameObject.transform.position);
         _controller.GravityActive(false);
+        _movement.ChangeState(CharacterStates.MovementStates.Idle);
+        _controller.SetHorizontalForce(0);
+        _controller.SetVerticalForce(0);
+        _lineRendererPlayer.enabled = false;
         SpawnHook();
         _condition.ChangeState(CharacterStates.CharacterConditions.BeingAHooker);
     }
@@ -126,12 +129,13 @@ public class HookshotAbility : CharacterAbility
     IEnumerator MoveToTarget()
     {
         float elapsedTime = 0f;
-        Vector2 targetPosition = _targetHitPoint - playerToMouse * Offset;
+        Vector2 HookHitPosition = SpawnedHook.transform.position;
+        Vector2 targetPosition = HookHitPosition /*- (playerToMouse * Offset)*/;
         _projectile.Speed = 0f;
         while (elapsedTime < Speed)
         {
             transform.position = Vector2.Lerp(transform.position , targetPosition, elapsedTime/Speed);
-            if (Vector2.Distance(targetPosition,transform.position) < 0.5f)
+            if (Vector2.Distance(targetPosition, transform.position) < 0.5f)
             {
                 break;
             }
